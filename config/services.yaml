@@ -1,0 +1,24 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Domain/'
+            - '../src/Kernel.php'
+
+    App\Infrastructure\Doctrine\Transaction\DoctrineTransaction:
+        arguments:
+            $manager: '@doctrine.orm.entity_manager'
+            $env: '%env(APP_ENV)%'
+
+    App\Infrastructure\Doctrine\Transaction\TransactionInterface:
+        alias: App\Infrastructure\Doctrine\Transaction\DoctrineTransaction
+
+    App\Domain\Entity\User\UserRepositoryInterface:
+        class: App\Infrastructure\Repository\Doctrine\User\UserRepository
+        arguments:
+            $entityManager: '@doctrine.orm.entity_manager'

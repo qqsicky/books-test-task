@@ -1,0 +1,39 @@
+version: '3.5'
+services:
+  books-php:
+    container_name: books-php
+    build: ./docker/php
+    volumes:
+      - ./:/var/www
+      - composer:/root/.composer/cache
+
+  books-nginx:
+    container_name: books-nginx
+    image: nginx:latest
+    restart: always
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/config:/etc/nginx/conf.d
+      - ./docker/nginx/logs:/var/log/nginx
+    depends_on:
+      - books-php
+    ports:
+        - "8080:8080"
+
+  books-postgres:
+    container_name: books-postgres
+    image: postgres:12.6
+    volumes:
+      - books-postgres:/var/lib/postgresql/data
+    ports:
+      - 54321:5432
+    expose:
+      - 5432
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: books
+
+volumes:
+  composer:
+  books-postgres:

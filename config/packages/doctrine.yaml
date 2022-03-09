@@ -1,0 +1,48 @@
+doctrine:
+    dbal:
+        charset: utf8
+        server_version: '12.6'
+        driver: pdo_pgsql
+        user: '%env(resolve:PSQL_USER)%'
+        password: '%env(resolve:PSQL_PASS)%'
+        dbname: '%env(resolve:PSQL_DATABASE)%'
+        host: '%env(resolve:PSQL_HOST)%'
+        port: '%env(resolve:PSQL_PORT)%'
+        types:
+            uuid: Ramsey\Uuid\Doctrine\UuidType
+            datetime_immutable: App\Infrastructure\Doctrine\Type\DatetimeImmutable
+    orm:
+        auto_generate_proxy_classes: true
+        naming_strategy: doctrine.orm.naming_strategy.underscore
+        auto_mapping: true
+        mappings:
+            App:
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Domain/Entity'
+                prefix: 'App\Domain\Entity'
+                alias: App
+
+when@test:
+    doctrine:
+        dbal:
+            # "TEST_TOKEN" is typically set by ParaTest
+            dbname_suffix: '_test%env(default::TEST_TOKEN)%'
+
+when@prod:
+    doctrine:
+        orm:
+            auto_generate_proxy_classes: false
+            query_cache_driver:
+                type: pool
+                pool: doctrine.system_cache_pool
+            result_cache_driver:
+                type: pool
+                pool: doctrine.result_cache_pool
+
+    framework:
+        cache:
+            pools:
+                doctrine.result_cache_pool:
+                    adapter: cache.app
+                doctrine.system_cache_pool:
+                    adapter: cache.system
